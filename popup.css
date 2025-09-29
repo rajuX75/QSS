@@ -1,57 +1,78 @@
+/*
+  NEW DESIGN SYSTEM FOR QSS POPUP
+  ---------------------------------
+  - Font: Inter, sans-serif
+  - Primary Accent: #3B82F6 (Blue)
+  - Neutrals:
+    - Body BG: #F9FAFB (Gray 50)
+    - Container BG: #FFFFFF (White)
+    - Text: #1F2937 (Gray 800)
+    - Muted Text/Borders: #6B7280 (Gray 500), #E5E7EB (Gray 200)
+  - Spacing: Consistent padding and margins
+  - Corners: 8px for main containers, 6px for inputs/buttons
+  - Shadows: Subtle, for depth
+*/
+
+/* General Body Styles */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
   font-size: 14px;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: #f9fafb; /* Soft neutral background */
+  color: #1f2937; /* Dark gray for text */
   margin: 0;
-  width: 320px;
+  width: 340px; /* Slightly wider for better spacing */
 }
 
+/* Main Container */
 .container {
-  padding: 15px;
+  padding: 20px;
 }
 
+/* Header */
 header {
   text-align: center;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 header h1 {
   font-size: 20px;
-  margin: 0 0 5px;
-  color: #000;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #111827; /* Darker for heading */
 }
 
 header p {
   margin: 0;
-  color: #666;
-  font-size: 13px;
+  color: #6b7280; /* Muted text */
+  font-size: 14px;
 }
 
+/* Settings Sections */
 .settings-section {
-  background-color: #fff;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb; /* Subtle border */
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .settings-section h2 {
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
   margin: 0 0 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
-  color: #333;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
 }
 
+/* Individual Setting Row */
 .setting {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .setting:last-child {
   margin-bottom: 0;
@@ -59,75 +80,119 @@ header p {
 
 label {
   font-weight: 500;
-  color: #555;
+  color: #374151; /* Slightly softer than main text */
 }
 
+/* Form Elements (Select, Inputs) */
 select,
 input[type='color'] {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   font-size: 14px;
-  background-color: #fff;
+  background-color: #ffffff;
+  color: #1f2937;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus,
+input[type='color']:focus {
+  outline: none;
+  border-color: #3b82f6; /* Accent color on focus */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 input[type='color'] {
-  padding: 2px;
-  height: 28px;
+  padding: 4px;
+  height: 38px;
+  width: 38px;
 }
 
 select {
-  width: 150px;
+  width: 160px;
 }
 
+/* Range Slider */
 .range-slider {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  width: 160px;
 }
 
 input[type='range'] {
   flex-grow: 1;
   -webkit-appearance: none;
-  height: 5px;
-  background: #ddd;
-  border-radius: 5px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
   outline: none;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
-input[type='range']:hover {
-  opacity: 1;
-}
+
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background: #007aff;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
   cursor: pointer;
   border-radius: 50%;
+  border: 2px solid #3b82f6; /* Accent color for thumb */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
+input[type='range']::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
 
 #jpeg-quality-value,
 #border-width-value {
-  background-color: #e9ecef;
-  padding: 3px 8px;
-  border-radius: 4px;
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 6px;
   font-size: 12px;
-  min-width: 25px;
+  min-width: 28px;
   text-align: center;
+  color: #4b5563;
+  font-weight: 500;
 }
 
-#jpeg-quality-container {
-  display: none; /* Hidden by default */
-}
-
+/* Buttons */
 .button-primary,
+.button-secondary {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.button-primary:active, .button-secondary:active {
+    transform: translateY(1px);
+}
+
+
+.button-primary {
+  background-color: #3b82f6; /* Vibrant accent */
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.button-primary:hover {
+  background-color: #2563eb;
+}
+
 #delay-indicator {
   text-align: center;
   margin-top: 10px;
-  color: #888;
+  color: #6b7280;
+  font-size: 13px;
+  padding: 10px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
 }
 
 .hidden {
@@ -135,48 +200,54 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .button-secondary {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
-}
-
-.button-primary {
-  background-color: #007aff;
-  color: white;
-  margin-bottom: 10px;
-}
-.button-primary:hover {
-  background-color: #0056b3;
-  box-shadow: 0 2px 5px rgba(0, 122, 255, 0.2);
-}
-
-.button-secondary {
-  background-color: #e5e5e5;
-  color: #333;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  margin-top: 10px;
 }
 .button-secondary:hover {
-  background-color: #dcdcdc;
+  background-color: #f9fafb;
 }
 
+/* Footer */
 footer {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 footer p {
   font-size: 12px;
-  color: #888;
+  color: #6b7280;
 }
 
 footer a {
-  color: #007aff;
+  color: #3b82f6;
   text-decoration: none;
+  font-weight: 500;
 }
 footer a:hover {
   text-decoration: underline;
+}
+
+.button-tertiary {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background-color 0.2s;
+  display: inline-block;
+}
+
+.button-tertiary:hover {
+  color: #1f2937;
+  background-color: #f3f4f6;
+}
+
+/* JPEG Quality Container - Hidden by default */
+#jpeg-quality-container {
+  display: none;
 }

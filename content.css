@@ -1,3 +1,10 @@
+/*
+  NEW DESIGN SYSTEM FOR QSS CONTENT SCRIPTS
+  -----------------------------------------
+  - Styles for the on-page selection process.
+  - Consistent, modern, and unobtrusive UI.
+*/
+
 /* The main overlay that covers the page */
 #screenshot-overlay {
   position: fixed;
@@ -7,7 +14,8 @@
   height: 100vh;
   cursor: crosshair;
   z-index: 2147483645;
-  filter: blur(3px) brightness(0.7);
+  /* A simple, clean overlay without blur */
+  background-color: rgba(23, 37, 51, 0.5);
   background-size: 100vw 100vh;
   background-repeat: no-repeat;
 }
@@ -25,39 +33,38 @@
 /* The label showing the dimensions of the selection */
 #screenshot-selection .dimensions-label {
   position: absolute;
-  bottom: -32px; /* Positioned below the selection box */
+  bottom: -36px; /* Positioned below the selection box */
   right: 0;
-  background: #222;
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  background: #1f2937; /* Dark gray background */
+  color: #f9fafb;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* The instruction toolbar at the top */
 #screenshot-toolbar {
   position: fixed;
-  top: 20px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(20, 20, 20, 0.85);
-  color: white;
-  padding: 10px 20px;
+  background: #ffffff;
+  color: #1f2937;
+  padding: 12px 20px;
   border-radius: 8px;
   z-index: 2147483647; /* Highest z-index */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
   font-size: 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
   pointer-events: none;
 }
 
@@ -67,24 +74,24 @@
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: #007aff;
-  color: white;
+  background: #1f2937; /* Dark, modern background */
+  color: #ffffff;
   padding: 12px 24px;
   border-radius: 8px;
   z-index: 2147483647;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  font-size: 15px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
-  animation: qss-fade-in-out 2.5s ease-in-out;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  animation: qss-fade-in-out 3s ease-in-out;
 }
 
 /* Animation for the notification */
 @keyframes qss-fade-in-out {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(20px);
+    transform: translateX(-50%) translateY(15px);
   }
   15% {
     opacity: 1;
@@ -96,6 +103,6 @@
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(20px);
+    transform: translateX(-50%) translateY(15px);
   }
 }
