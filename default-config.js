@@ -8,5 +8,8 @@ const defaultConfig = {
 
   // Appearance
   borderColor: '#00d9ff',
-  borderWidth: 3, // in pixels
+  borderWidth: 3, // in pixel
+
+  // Advanced
+  captureDelay: 0, // in seconds
 };

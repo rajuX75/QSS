@@ -124,6 +124,16 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .button-primary,
+#delay-indicator {
+  text-align: center;
+  margin-top: 10px;
+  color: #888;
+}
+
+.hidden {
+  display: none;
+}
+
 .button-secondary {
   width: 100%;
   padding: 10px;
