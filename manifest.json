@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Quick Screenshot Selector",
+  "version": "1.0",
+  "description": "Take screenshots with Ctrl+S and select area to copy to clipboard",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "commands": {
+    "take-screenshot": {
+      "suggested_key": {
+        "default": "Ctrl+S",
+        "mac": "Command+S"
+      },
+      "description": "Take screenshot with selection"
+    }
+  }
+}
