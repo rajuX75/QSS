@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const borderWidthValue = document.getElementById('border-width-value');
   const captureDelay = document.getElementById('capture-delay');
   const takeScreenshotBtn = document.getElementById('take-screenshot');
+  const captureFullPageBtn = document.getElementById('capture-full-page');
   const resetSettingsBtn = document.getElementById('reset-settings');
   const shortcutLink = document.getElementById('shortcut-link');
   const delayIndicator = document.getElementById('delay-indicator');
@@ -39,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     captureDelay.value = currentConfig.captureDelay;
     updateJpegQualityVisibility();
   }
-
   // Save the current state of the UI to the configuration object in storage
   function saveSettings() {
     const newConfig = {
@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset Settings button
   resetSettingsBtn.addEventListener('click', () => {
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
 delayed-capture
     currentConfig = { ...defaultConfig };
     chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
@@ -126,6 +129,14 @@ delayed-capture
   shortcutLink.addEventListener('click', (e) => {
     e.preventDefault();
     chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  });
+
+  // Full Page Capture button
+  captureFullPageBtn.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'startScrollingCapture' });
+      window.close();
+    });
   });
 
   // Initial load
