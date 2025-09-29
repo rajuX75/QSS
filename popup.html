@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QSS Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>QSS Settings</h1>
+      <p>Customize your screenshot experience</p>
+    </header>
+
+    <div class="settings-section">
+      <button id="take-screenshot" class="button-primary">Take Screenshot Now</button>
+    </div>
+
+    <div class="settings-section">
+      <h2>Image Settings</h2>
+      <div class="setting">
+        <label for="image-format">Format:</label>
+        <select id="image-format">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+        </select>
+      </div>
+      <div class="setting" id="jpeg-quality-container">
+        <label for="jpeg-quality">JPEG Quality:</label>
+        <div class="range-slider">
+          <input type="range" id="jpeg-quality" min="1" max="100" value="92">
+          <span id="jpeg-quality-value">92</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>After Capture</h2>
+      <div class="setting">
+        <label for="after-capture-action">Action:</label>
+        <select id="after-capture-action">
+          <option value="copy">Copy to Clipboard</option>
+          <option value="download">Download File</option>
+          <option value="new-tab">Open in New Tab</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Appearance</h2>
+      <div class="setting">
+        <label for="border-color">Selection Border Color:</label>
+        <input type="color" id="border-color" value="#00d9ff">
+      </div>
+       <div class="setting">
+        <label for="border-width">Selection Border Width:</label>
+        <div class="range-slider">
+          <input type="range" id="border-width" min="1" max="10" value="3">
+          <span id="border-width-value">3px</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <button id="reset-settings" class="button-secondary">Reset to Defaults</button>
+      <p>Keyboard Shortcut: <a href="#" id="shortcut-link">Customize</a></p>
+    </footer>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
