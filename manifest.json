@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Quick Screenshot Selector",
+  "name": "QSS",
   "version": "1.0",
   "description": "Take screenshots with Ctrl+S and select area to copy to clipboard",
   "permissions": ["activeTab", "scripting"],
