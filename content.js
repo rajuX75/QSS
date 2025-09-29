@@ -1,7 +1,30 @@
 let isSelecting = false;
 let startX, startY;
-let overlay, selectionBox;
+let overlay, selectionBox, toolbar;
 let screenshotData;
+let isActive = false;
+
+// Prevent Ctrl+S default behavior
+document.addEventListener(
+  'keydown',
+  function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      if (!isActive) {
+        captureAndStartSelection();
+      }
+      return false;
+    }
+
+    // ESC to cancel
+    if (e.key === 'Escape' && isActive) {
+      cleanup();
+    }
+  },
+  true
+);
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'startScreenshot') {
@@ -10,6 +33,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function captureAndStartSelection() {
+  if (isActive) return;
+  isActive = true;
+
   chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, (response) => {
     if (response && response.dataUrl) {
       screenshotData = response.dataUrl;
@@ -26,8 +52,19 @@ function createOverlay() {
   selectionBox = document.createElement('div');
   selectionBox.id = 'screenshot-selection';
 
+  // Create instruction toolbar
+  toolbar = document.createElement('div');
+  toolbar.id = 'screenshot-toolbar';
+  toolbar.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span>📸 Click and drag to select area</span>
+      <span style="opacity: 0.7;">Press ESC to cancel</span>
+    </div>
+  `;
+
   document.body.appendChild(overlay);
   document.body.appendChild(selectionBox);
+  document.body.appendChild(toolbar);
 }
 
 function startSelection() {
@@ -66,6 +103,17 @@ function handleMouseMove(e) {
   selectionBox.style.top = top + 'px';
   selectionBox.style.width = width + 'px';
   selectionBox.style.height = height + 'px';
+
+  // Update dimensions display
+  const dimensionsText = selectionBox.querySelector('.dimensions-label');
+  if (dimensionsText) {
+    dimensionsText.textContent = `${Math.round(width)} × ${Math.round(height)}`;
+  } else {
+    const label = document.createElement('div');
+    label.className = 'dimensions-label';
+    label.textContent = `${Math.round(width)} × ${Math.round(height)}`;
+    selectionBox.appendChild(label);
+  }
 }
 
 function handleMouseUp(e) {
@@ -159,7 +207,12 @@ function cleanup() {
   if (selectionBox) {
     selectionBox.remove();
   }
+  if (toolbar) {
+    toolbar.remove();
+  }
   overlay = null;
   selectionBox = null;
+  toolbar = null;
   screenshotData = null;
+  isActive = false;
 }
