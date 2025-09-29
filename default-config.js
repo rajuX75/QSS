@@ -22,4 +22,14 @@ const defaultConfig = {
     ],
     lineWidths: [2, 5, 10], // in pixels
   },
+
+  // Scrolling Capture Settings
+  scrollingCapture: {
+    scrollDelay: 500, // ms to wait after a scroll before taking a screenshot
+  },
+
+  borderWidth: 3, // in pixel
+
+  // Advanced
+  captureDelay: 0, // in seconds
 };

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const borderWidthValue = document.getElementById('border-width-value');
   const captureDelay = document.getElementById('capture-delay');
   const takeScreenshotBtn = document.getElementById('take-screenshot');
+  const captureFullPageBtn = document.getElementById('capture-full-page');
   const resetSettingsBtn = document.getElementById('reset-settings');
   const shortcutLink = document.getElementById('shortcut-link');
   const delayIndicator = document.getElementById('delay-indicator');
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load the configuration from storage, using defaultConfig as a fallback
   function loadSettings() {
+    // defaultConfig is available from default
     chrome.storage.sync.get({ [CONFIG_KEY]: defaultConfig }, (result) => {
       currentConfig = result[CONFIG_KEY];
       updateUIFromConfig();
@@ -36,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     borderWidth.value = currentConfig.borderWidth;
     borderWidthValue.textContent = `${currentConfig.borderWidth}px`;
     captureDelay.value = currentConfig.captureDelay;
-
+    updateJpegQualityVisibility();
+  }
     updateJpegQualityVisibility();
   }
 
@@ -107,12 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
       window.close();
     });
   }
-
   // Reset Settings button
   resetSettingsBtn.addEventListener('click', () => {
     currentConfig = { ...defaultConfig };
     chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
       updateUIFromConfig();
+delayed-capture
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
+    // Reset to the defaults from the config file
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
+      // Optional: show a confirmation message
     });
   });
 
@@ -120,6 +131,14 @@ document.addEventListener('DOMContentLoaded', () => {
   shortcutLink.addEventListener('click', (e) => {
     e.preventDefault();
     chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  });
+
+  // Full Page Capture button
+  captureFullPageBtn.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'startScrollingCapture' });
+      window.close();
+    });
   });
 
   // Initial load

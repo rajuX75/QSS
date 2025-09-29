@@ -56,6 +56,8 @@ document.addEventListener(
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'startScreenshot') {
     captureAndStartSelection();
+  } else if (request.action === 'startScrollingCapture') {
+    executeScrollingCapture();
   }
 });
 
@@ -249,6 +251,10 @@ async function launchEditor(x, y, width, height) {
 // This listener is triggered by the editor when the user clicks "Confirm"
 document.addEventListener('qss:process-image', (e) => {
   const { dataUrl } = e.detail;
+  processFinalImage(e.detail.dataUrl);
+
+// A generic function to handle the final image dataUrl, whether from the editor or scrolling capture
+function processFinalImage(dataUrl) {
   const mimeType = `image/${settings.imageFormat}`;
   const quality =
     settings.imageFormat === 'jpeg' ? settings.jpegQuality / 100 : undefined;
@@ -282,6 +288,7 @@ document.addEventListener('qss:process-image', (e) => {
       break;
   }
 });
+}
 
 function showNotification(message) {
   const notification = document.createElement('div');
@@ -303,4 +310,159 @@ function cleanup() {
   selectionBox = null;
   toolbar = null;
   // `isActive` and `screenshotData` are reset when the editor sends the 'qss:editor-closed' event.
+}
+
+// --- SCROLLING CAPTURE LOGIC ---
+
+// A helper function to pause execution
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// A helper to find and hide elements that might interfere with screenshots
+function hideFixedElements() {
+  const fixedElements = [];
+  // A more specific query to avoid iterating over everything
+  document.querySelectorAll('body *').forEach(el => {
+    const style = window.getComputedStyle(el);
+    if (style.position === 'fixed' || style.position === 'sticky') {
+      fixedElements.push({ element: el, originalDisplay: el.style.display });
+      el.style.display = 'none';
+    }
+  });
+  return fixedElements;
+}
+
+// A helper to restore hidden elements
+function showFixedElements(elements) {
+  elements.forEach(({ element, originalDisplay }) => {
+    element.style.display = originalDisplay || '';
+  });
+}
+
+async function executeScrollingCapture() {
+  if (isActive) return;
+  isActive = true;
+
+  showNotification('Starting full page capture...');
+  const originalScrollX = window.scrollX;
+  const originalScrollY = window.scrollY;
+
+  const hiddenElements = hideFixedElements();
+
+  const totalHeight = document.documentElement.scrollHeight;
+  const viewportHeight = window.innerHeight;
+
+  window.scrollTo(0, 0);
+  await sleep(settings.scrollingCapture.scrollDelay);
+
+  const capturedParts = [];
+  let currentY = 0;
+
+  while (currentY < totalHeight) {
+    window.scrollTo(0, currentY);
+    await sleep(settings.scrollingCapture.scrollDelay);
+
+    const message = {
+      action: 'captureVisibleTab',
+      format: settings.imageFormat,
+      quality: settings.jpegQuality,
+    };
+
+    const response = await new Promise(resolve => {
+      chrome.runtime.sendMessage(message, resolve);
+    });
+
+    if (response && response.dataUrl) {
+      const isLastCapture = (currentY + viewportHeight) >= totalHeight;
+      capturedParts.push({ dataUrl: response.dataUrl, y: currentY, isLast: isLastCapture });
+    } else {
+      showNotification('Error: Failed to capture a part of the page.');
+      showFixedElements(hiddenElements);
+      window.scrollTo(originalScrollX, originalScrollY);
+      cleanup();
+      return;
+    }
+
+    currentY += viewportHeight;
+  }
+
+  showNotification('Stitching images together...');
+
+  // Pass dimensions needed for stitching
+  const totalWidth = document.documentElement.scrollWidth;
+  stitchImages(capturedParts, totalWidth, totalHeight);
+
+  showFixedElements(hiddenElements);
+  window.scrollTo(originalScrollX, originalScrollY);
+}
+
+async function stitchImages(parts, totalWidth, totalHeight) {
+  const finalCanvas = document.createElement('canvas');
+  const dpr = window.devicePixelRatio || 1;
+  const ctx = finalCanvas.getContext('2d');
+
+  // Set the canvas size in physical pixels
+  finalCanvas.width = totalWidth * dpr;
+  finalCanvas.height = totalHeight * dpr;
+
+  // Scale the context to use logical pixels for drawing
+  ctx.scale(dpr, dpr);
+
+  // Load all image parts
+  const imagePromises = parts.map(part => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve({ img, y: part.y, isLast: part.isLast });
+      img.onerror = reject;
+      img.src = part.dataUrl;
+    });
+  });
+
+  try {
+    const loadedImages = await Promise.all(imagePromises);
+
+    loadedImages.forEach(({ img, y, isLast }) => {
+      const drawY = y; // Use logical y position for drawing
+      let sourceHeight = img.height; // Physical pixel height from the source image
+
+      // If it's the last image, crop it to the exact remaining page height
+      if (isLast) {
+        const remainingPageHeight = totalHeight - y;
+        const requiredSourceHeight = remainingPageHeight * dpr;
+        if (sourceHeight > requiredSourceHeight) {
+          sourceHeight = requiredSourceHeight;
+        }
+      }
+
+      // Draw the partial screenshot onto the final canvas
+      // Source dimensions are in physical pixels; destination dimensions are in logical pixels
+      ctx.drawImage(
+        img,
+        0, // sx
+        0, // sy
+        img.width, // sWidth (physical)
+        sourceHeight, // sHeight (physical)
+        0, // dx
+        drawY, // dy (logical)
+        img.width / dpr, // dWidth (logical)
+        sourceHeight / dpr // dHeight (logical)
+      );
+    });
+
+    const finalDataUrl = finalCanvas.toDataURL(
+      `image/${settings.imageFormat}`,
+      settings.jpegQuality / 100
+    );
+
+    processFinalImage(finalDataUrl);
+    showNotification('Full page capture complete!');
+
+  } catch (error) {
+    console.error('QSS Error: Failed to load one or more image parts for stitching.', error);
+    showNotification('Error: Could not stitch the full page image.');
+  } finally {
+    cleanup();
+    isActive = false; // Reset state
+  }
 }
