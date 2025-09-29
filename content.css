@@ -3,24 +3,23 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100vw;
+  height: 100vh;
   cursor: crosshair;
-  z-index: 2147483645; /* Lower than selection and toolbar */
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  z-index: 2147483645;
+  filter: blur(3px) brightness(0.7);
+  background-size: 100vw 100vh;
+  background-repeat: no-repeat;
 }
 
 /* The selection box drawn by the user */
 #screenshot-selection {
   position: fixed;
-  background: rgba(0, 0, 0, 0.1); /* Fallback */
   display: none;
   z-index: 2147483646;
   pointer-events: none;
-  /* Creates the dimming effect outside the selection */
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  background-size: 100vw 100vh;
+  background-repeat: no-repeat;
 }
 
 /* The label showing the dimensions of the selection */
