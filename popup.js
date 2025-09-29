@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load the configuration from storage, using defaultConfig as a fallback
   function loadSettings() {
+    // defaultConfig is available from default
     chrome.storage.sync.get({ [CONFIG_KEY]: defaultConfig }, (result) => {
       currentConfig = result[CONFIG_KEY];
       updateUIFromConfig();
@@ -37,10 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     borderWidth.value = currentConfig.borderWidth;
     borderWidthValue.textContent = `${currentConfig.borderWidth}px`;
     captureDelay.value = currentConfig.captureDelay;
-
     updateJpegQualityVisibility();
   }
-
   // Save the current state of the UI to the configuration object in storage
   function saveSettings() {
     const newConfig = {
@@ -114,6 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
     currentConfig = { ...defaultConfig };
     chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
       updateUIFromConfig();
+delayed-capture
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
+    // Reset to the defaults from the config file
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
+      // Optional: show a confirmation message
     });
   });
 
