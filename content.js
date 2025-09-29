@@ -86,12 +86,16 @@ function captureAndStartSelection() {
 }
 
 function createOverlay() {
+  const imageUrl = `url("${screenshotData}")`;
+
   overlay = document.createElement('div');
   overlay.id = 'screenshot-overlay';
+  overlay.style.backgroundImage = imageUrl;
 
   selectionBox = document.createElement('div');
   selectionBox.id = 'screenshot-selection';
   selectionBox.style.border = `${settings.borderWidth}px solid ${settings.borderColor}`;
+  selectionBox.style.backgroundImage = imageUrl;
 
   toolbar = document.createElement('div');
   toolbar.id = 'screenshot-toolbar';
@@ -139,6 +143,7 @@ function handleMouseMove(e) {
   selectionBox.style.top = top + 'px';
   selectionBox.style.width = width + 'px';
   selectionBox.style.height = height + 'px';
+  selectionBox.style.backgroundPosition = `-${left}px -${top}px`;
 
   let label = selectionBox.querySelector('.dimensions-label');
   if (!label) {
