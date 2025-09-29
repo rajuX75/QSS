@@ -5,25 +5,20 @@ let screenshotData;
 let isActive = false;
 let settings = {};
 
-const defaults = {
-  imageFormat: 'png',
-  jpegQuality: 92,
-  afterCaptureAction: 'copy',
-  borderColor: '#00d9ff',
-  borderWidth: 3,
-};
+const CONFIG_KEY = 'qss_config';
 
-// Load settings from storage
+// Load settings from storage, with a fallback to defaultConfig
 function loadSettings() {
-  chrome.storage.sync.get(defaults, (loadedSettings) => {
-    settings = loadedSettings;
+  // defaultConfig is available from the injected default-config.js
+  chrome.storage.sync.get({ [CONFIG_KEY]: defaultConfig }, (result) => {
+    settings = result[CONFIG_KEY];
   });
 }
 
 // Listen for settings changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  for (let [key, { newValue }] of Object.entries(changes)) {
-    settings[key] = newValue;
+  if (changes[CONFIG_KEY]) {
+    settings = changes[CONFIG_KEY].newValue;
   }
 });
 
