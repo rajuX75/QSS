@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "QSS",
   "version": "1.0",
-  "description": "Take screenshots with Ctrl+S and select area to copy to clipboard",
-  "permissions": ["activeTab", "scripting"],
+  "description": "An advanced screenshot tool with customizable settings.",
+  "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
@@ -24,7 +24,8 @@
     }
   },
   "action": {
-    "default_title": "Take Screenshot"
+    "default_title": "QSS - Settings",
+    "default_popup": "popup.html"
   },
   "icons": {
     "16": "icons/icon16.png",

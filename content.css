@@ -1,3 +1,4 @@
+/* The main overlay that covers the page */
 #screenshot-overlay {
   position: fixed;
   top: 0;
@@ -6,48 +7,96 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   cursor: crosshair;
-  z-index: 2147483646;
-  backdrop-filter: blur(2px);
+  z-index: 2147483645; /* Lower than selection and toolbar */
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
+/* The selection box drawn by the user */
 #screenshot-selection {
   position: fixed;
-  border: 3px solid #00d9ff;
-  background: rgba(0, 217, 255, 0.15);
+  background: rgba(0, 0, 0, 0.1); /* Fallback */
   display: none;
-  z-index: 2147483647;
+  z-index: 2147483646;
   pointer-events: none;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+  /* Creates the dimming effect outside the selection */
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
 }
 
+/* The label showing the dimensions of the selection */
 #screenshot-selection .dimensions-label {
   position: absolute;
-  bottom: -30px;
+  bottom: -32px; /* Positioned below the selection box */
   right: 0;
-  background: #00d9ff;
-  color: #000;
-  padding: 4px 12px;
+  background: #222;
+  color: #fff;
+  padding: 5px 10px;
   border-radius: 4px;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* The instruction toolbar at the top */
 #screenshot-toolbar {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(20, 20, 20, 0.85);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  z-index: 2147483647; /* Highest z-index */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* The notification pop-up for feedback (e.g., "Copied to clipboard") */
+#qss-notification {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #007aff;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
   z-index: 2147483647;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
+  animation: qss-fade-in-out 2.5s ease-in-out;
+}
+
+/* Animation for the notification */
+@keyframes qss-fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
 }

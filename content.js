@@ -3,11 +3,37 @@ let startX, startY;
 let overlay, selectionBox, toolbar;
 let screenshotData;
 let isActive = false;
+let settings = {};
+
+const defaults = {
+  imageFormat: 'png',
+  jpegQuality: 92,
+  afterCaptureAction: 'copy',
+  borderColor: '#00d9ff',
+  borderWidth: 3,
+};
+
+// Load settings from storage
+function loadSettings() {
+  chrome.storage.sync.get(defaults, (loadedSettings) => {
+    settings = loadedSettings;
+  });
+}
+
+// Listen for settings changes
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  for (let [key, { newValue }] of Object.entries(changes)) {
+    settings[key] = newValue;
+  }
+});
+
+// Initial load of settings
+loadSettings();
 
 // Prevent Ctrl+S default behavior
 document.addEventListener(
   'keydown',
-  function (e) {
+  (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
       e.stopPropagation();
@@ -18,7 +44,6 @@ document.addEventListener(
       return false;
     }
 
-    // ESC to cancel
     if (e.key === 'Escape' && isActive) {
       cleanup();
     }
@@ -36,11 +61,26 @@ function captureAndStartSelection() {
   if (isActive) return;
   isActive = true;
 
-  chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, (response) => {
+  const message = {
+    action: 'captureVisibleTab',
+    format: settings.imageFormat,
+    quality: settings.jpegQuality,
+  };
+
+  chrome.runtime.sendMessage(message, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+      showNotification('Error: Could not capture this page.');
+      cleanup();
+      return;
+    }
     if (response && response.dataUrl) {
       screenshotData = response.dataUrl;
       createOverlay();
-      startSelection();
+    } else {
+      console.error('Failed to capture tab.');
+      showNotification('Error: Failed to get screenshot data.');
+      cleanup();
     }
   });
 }
@@ -51,8 +91,8 @@ function createOverlay() {
 
   selectionBox = document.createElement('div');
   selectionBox.id = 'screenshot-selection';
+  selectionBox.style.border = `${settings.borderWidth}px solid ${settings.borderColor}`;
 
-  // Create instruction toolbar
   toolbar = document.createElement('div');
   toolbar.id = 'screenshot-toolbar';
   toolbar.innerHTML = `
@@ -65,10 +105,6 @@ function createOverlay() {
   document.body.appendChild(overlay);
   document.body.appendChild(selectionBox);
   document.body.appendChild(toolbar);
-}
-
-function startSelection() {
-  isSelecting = false;
 
   overlay.addEventListener('mousedown', handleMouseDown);
   overlay.addEventListener('mousemove', handleMouseMove);
@@ -104,21 +140,17 @@ function handleMouseMove(e) {
   selectionBox.style.width = width + 'px';
   selectionBox.style.height = height + 'px';
 
-  // Update dimensions display
-  const dimensionsText = selectionBox.querySelector('.dimensions-label');
-  if (dimensionsText) {
-    dimensionsText.textContent = `${Math.round(width)} × ${Math.round(height)}`;
-  } else {
-    const label = document.createElement('div');
+  let label = selectionBox.querySelector('.dimensions-label');
+  if (!label) {
+    label = document.createElement('div');
     label.className = 'dimensions-label';
-    label.textContent = `${Math.round(width)} × ${Math.round(height)}`;
     selectionBox.appendChild(label);
   }
+  label.textContent = `${Math.round(width)} × ${Math.round(height)}`;
 }
 
 function handleMouseUp(e) {
   if (!isSelecting) return;
-
   isSelecting = false;
 
   const endX = e.clientX;
@@ -130,19 +162,19 @@ function handleMouseUp(e) {
   const height = Math.abs(endY - startY);
 
   if (width > 5 && height > 5) {
-    cropAndCopyToClipboard(x, y, width, height);
+    processScreenshot(x, y, width, height);
+  } else {
+    cleanup();
   }
-
-  cleanup();
 }
 
-function cropAndCopyToClipboard(x, y, width, height) {
+function processScreenshot(x, y, width, height) {
   const img = new Image();
   img.onload = () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-
     const dpr = window.devicePixelRatio || 1;
+
     canvas.width = width * dpr;
     canvas.height = height * dpr;
 
@@ -158,58 +190,64 @@ function cropAndCopyToClipboard(x, y, width, height) {
       height * dpr
     );
 
-    canvas.toBlob((blob) => {
-      const item = new ClipboardItem({ 'image/png': blob });
-      navigator.clipboard
-        .write([item])
-        .then(() => {
-          showNotification('Screenshot copied to clipboard!');
-        })
-        .catch((err) => {
-          console.error('Failed to copy:', err);
-          showNotification('Failed to copy screenshot');
-        });
-    });
+    const mimeType = `image/${settings.imageFormat}`;
+    const quality = settings.imageFormat === 'jpeg' ? settings.jpegQuality / 100 : undefined;
+
+    switch (settings.afterCaptureAction) {
+      case 'copy':
+        canvas.toBlob(
+          (blob) => {
+            const item = new ClipboardItem({ [mimeType]: blob });
+            navigator.clipboard
+              .write([item])
+              .then(() => showNotification('Screenshot copied to clipboard!'))
+              .catch((err) => {
+                console.error('Failed to copy:', err);
+                showNotification('Error: Failed to copy screenshot');
+              });
+          },
+          mimeType,
+          quality
+        );
+        break;
+      case 'download':
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        link.download = `Screenshot-${timestamp}.${settings.imageFormat}`;
+        link.href = dataUrl;
+        link.click();
+        showNotification('Screenshot downloaded.');
+        break;
+      case 'new-tab':
+        const tabDataUrl = canvas.toDataURL(mimeType, quality);
+        window.open(tabDataUrl, '_blank');
+        showNotification('Screenshot opened in a new tab.');
+        break;
+    }
+    // Cleanup is now called after the async operation completes inside the switch
+    setTimeout(cleanup, 100);
   };
   img.src = screenshotData;
 }
 
+
 function showNotification(message) {
   const notification = document.createElement('div');
+  notification.id = 'qss-notification';
   notification.textContent = message;
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #333;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 4px;
-    z-index: 2147483647;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  `;
   document.body.appendChild(notification);
 
   setTimeout(() => {
     notification.remove();
-  }, 2000);
+  }, 2500);
 }
 
 function cleanup() {
-  if (overlay) {
-    overlay.removeEventListener('mousedown', handleMouseDown);
-    overlay.removeEventListener('mousemove', handleMouseMove);
-    overlay.removeEventListener('mouseup', handleMouseUp);
-    overlay.remove();
-  }
-  if (selectionBox) {
-    selectionBox.remove();
-  }
-  if (toolbar) {
-    toolbar.remove();
-  }
+  if (overlay) overlay.remove();
+  if (selectionBox) selectionBox.remove();
+  if (toolbar) toolbar.remove();
+
   overlay = null;
   selectionBox = null;
   toolbar = null;
