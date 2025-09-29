@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // UI Elements
   const imageFormat = document.getElementById('image-format');
   const jpegQualityContainer = document.getElementById('jpeg-quality-container');
   const jpegQuality = document.getElementById('jpeg-quality');
@@ -11,39 +12,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetSettingsBtn = document.getElementById('reset-settings');
   const shortcutLink = document.getElementById('shortcut-link');
 
-  const defaults = {
-    imageFormat: 'png',
-    jpegQuality: 92,
-    afterCaptureAction: 'copy',
-    borderColor: '#00d9ff',
-    borderWidth: 3,
-  };
+  const CONFIG_KEY = 'qss_config';
+  let currentConfig = {};
 
-  // Load settings from storage
+  // Load the configuration from storage, using defaultConfig as a fallback
   function loadSettings() {
-    chrome.storage.sync.get(defaults, (items) => {
-      imageFormat.value = items.imageFormat;
-      jpegQuality.value = items.jpegQuality;
-      jpegQualityValue.textContent = items.jpegQuality;
-      afterCaptureAction.value = items.afterCaptureAction;
-      borderColor.value = items.borderColor;
-      borderWidth.value = items.borderWidth;
-      borderWidthValue.textContent = `${items.borderWidth}px`;
-
-      updateJpegQualityVisibility();
+    // defaultConfig is available from default-config.js
+    chrome.storage.sync.get({ [CONFIG_KEY]: defaultConfig }, (result) => {
+      currentConfig = result[CONFIG_KEY];
+      updateUIFromConfig();
     });
   }
 
-  // Save settings to storage
+  // Update all UI elements based on the current configuration
+  function updateUIFromConfig() {
+    imageFormat.value = currentConfig.imageFormat;
+    jpegQuality.value = currentConfig.jpegQuality;
+    jpegQualityValue.textContent = currentConfig.jpegQuality;
+    afterCaptureAction.value = currentConfig.afterCaptureAction;
+    borderColor.value = currentConfig.borderColor;
+    borderWidth.value = currentConfig.borderWidth;
+    borderWidthValue.textContent = `${currentConfig.borderWidth}px`;
+
+    updateJpegQualityVisibility();
+  }
+
+  // Save the current state of the UI to the configuration object in storage
   function saveSettings() {
-    const settings = {
+    const newConfig = {
       imageFormat: imageFormat.value,
       jpegQuality: parseInt(jpegQuality.value, 10),
       afterCaptureAction: afterCaptureAction.value,
       borderColor: borderColor.value,
       borderWidth: parseInt(borderWidth.value, 10),
     };
-    chrome.storage.sync.set(settings);
+    currentConfig = newConfig;
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig });
   }
 
   function updateJpegQualityVisibility() {
@@ -77,8 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset Settings button
   resetSettingsBtn.addEventListener('click', () => {
-    chrome.storage.sync.set(defaults, () => {
-      loadSettings();
+    // Reset to the defaults from the config file
+    currentConfig = { ...defaultConfig };
+    chrome.storage.sync.set({ [CONFIG_KEY]: currentConfig }, () => {
+      updateUIFromConfig();
       // Optional: show a confirmation message
     });
   });

@@ -5,25 +5,20 @@ let screenshotData;
 let isActive = false;
 let settings = {};
 
-const defaults = {
-  imageFormat: 'png',
-  jpegQuality: 92,
-  afterCaptureAction: 'copy',
-  borderColor: '#00d9ff',
-  borderWidth: 3,
-};
+const CONFIG_KEY = 'qss_config';
 
-// Load settings from storage
+// Load settings from storage, with a fallback to defaultConfig
 function loadSettings() {
-  chrome.storage.sync.get(defaults, (loadedSettings) => {
-    settings = loadedSettings;
+  // defaultConfig is available from the injected default-config.js
+  chrome.storage.sync.get({ [CONFIG_KEY]: defaultConfig }, (result) => {
+    settings = result[CONFIG_KEY];
   });
 }
 
 // Listen for settings changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  for (let [key, { newValue }] of Object.entries(changes)) {
-    settings[key] = newValue;
+  if (changes[CONFIG_KEY]) {
+    settings = changes[CONFIG_KEY].newValue;
   }
 });
 
@@ -86,12 +81,16 @@ function captureAndStartSelection() {
 }
 
 function createOverlay() {
+  const imageUrl = `url("${screenshotData}")`;
+
   overlay = document.createElement('div');
   overlay.id = 'screenshot-overlay';
+  overlay.style.backgroundImage = imageUrl;
 
   selectionBox = document.createElement('div');
   selectionBox.id = 'screenshot-selection';
   selectionBox.style.border = `${settings.borderWidth}px solid ${settings.borderColor}`;
+  selectionBox.style.backgroundImage = imageUrl;
 
   toolbar = document.createElement('div');
   toolbar.id = 'screenshot-toolbar';
@@ -139,6 +138,7 @@ function handleMouseMove(e) {
   selectionBox.style.top = top + 'px';
   selectionBox.style.width = width + 'px';
   selectionBox.style.height = height + 'px';
+  selectionBox.style.backgroundPosition = `-${left}px -${top}px`;
 
   let label = selectionBox.querySelector('.dimensions-label');
   if (!label) {
