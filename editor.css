@@ -1,29 +1,39 @@
-/* Main container for the annotation editor */
+/*
+  NEW DESIGN SYSTEM FOR QSS EDITOR
+  ---------------------------------
+  - Consistent with the popup UI for a cohesive experience.
+  - Light, floating toolbar design.
+  - Clear, modern iconography and active states.
+*/
+
+/* Editor overlay */
 #qss-editor-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(23, 37, 51, 0.7); /* Dark, slightly blue overlay */
   z-index: 2147483647;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
 }
 
-/* Toolbar for annotation tools */
+/* Floating Toolbar */
 #qss-editor-toolbar {
-  background-color: #2c2c2c;
-  padding: 8px;
-  border-radius: 6px;
+  background-color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
   display: flex;
   gap: 16px;
   align-items: center;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
 }
 
 .tool-group {
@@ -32,78 +42,109 @@
   align-items: center;
 }
 
-/* Styling for individual tool buttons */
+/* Tool Buttons */
 .qss-tool-button {
-  background-color: #444;
-  color: #fff;
-  border: 1px solid #666;
-  padding: 8px 12px;
-  border-radius: 4px;
+  background-color: transparent;
+  color: #374151;
+  border: 1px solid transparent;
+  padding: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-family: sans-serif;
-  font-weight: bold;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.qss-tool-button:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
 }
 
 .qss-tool-button.active {
-  background-color: #007aff;
-  border-color: #007aff;
+  background-color: #eff6ff; /* Light blue */
+  color: #2563eb; /* Darker blue */
+  border-color: #bfdbfe;
 }
 
-/* Color palette styling */
+/* Color Palette */
 .color-palette {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .color-swatch {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.color-swatch:hover {
+  transform: scale(1.1);
 }
 
 .color-swatch.active {
-  border-color: #fff;
-  box-shadow: 0 0 0 2px #007aff;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #3b82f6; /* Blue ring for active color */
 }
 
-/* Line width selector styling */
+/* Line Width Selector */
 .line-widths {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
 .line-width-option {
-  background-color: #fff;
+  background-color: #d1d5db;
   border-radius: 50%;
   cursor: pointer;
-  border: 2px solid #ccc;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.line-width-option:hover {
+  border-color: #9ca3af;
 }
 
 .line-width-option.active {
-  border-color: #007aff;
+  border-color: #3b82f6;
 }
 
-/* General editor buttons (Confirm, Cancel) */
+/* Editor Action Buttons (Confirm, Cancel) */
 .qss-editor-button {
-  background-color: #555;
-  color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .qss-editor-button.primary {
-  background-color: #007aff;
+  background-color: #3b82f6;
+  color: white;
+}
+.qss-editor-button.primary:hover {
+  background-color: #2563eb;
 }
 
-/* Canvas where the screenshot is displayed and edited */
+.qss-editor-button.secondary {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.qss-editor-button.secondary:hover {
+  background-color: #f9fafb;
+}
+
+/* Canvas for the screenshot */
 #qss-editor-canvas {
   max-width: 90vw;
-  max-height: 80vh;
-  border-radius: 4px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-height: 75vh; /* Adjusted for more toolbar space */
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e7eb;
 }
