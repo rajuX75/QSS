@@ -32,5 +32,4 @@ const defaultConfig = {
 
   // Advanced
   captureDelay: 0, // in seconds
-
 };

@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
     captureDelay.value = currentConfig.captureDelay;
     updateJpegQualityVisibility();
   }
+    updateJpegQualityVisibility();
+  }
+
   // Save the current state of the UI to the configuration object in storage
   function saveSettings() {
     const newConfig = {
@@ -107,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
       window.close();
     });
   }
-
   // Reset Settings button
   resetSettingsBtn.addEventListener('click', () => {
     currentConfig = { ...defaultConfig };

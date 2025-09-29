@@ -250,8 +250,8 @@ async function launchEditor(x, y, width, height) {
 
 // This listener is triggered by the editor when the user clicks "Confirm"
 document.addEventListener('qss:process-image', (e) => {
+  const { dataUrl } = e.detail;
   processFinalImage(e.detail.dataUrl);
-});
 
 // A generic function to handle the final image dataUrl, whether from the editor or scrolling capture
 function processFinalImage(dataUrl) {
@@ -287,6 +287,7 @@ function processFinalImage(dataUrl) {
       showNotification('Screenshot opened in a new tab.');
       break;
   }
+});
 }
 
 function showNotification(message) {
